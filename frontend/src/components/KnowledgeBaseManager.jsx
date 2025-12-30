@@ -1,6 +1,40 @@
 import React, { useState } from 'react';
+import {
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Grid,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Alert,
+  Card,
+  CardContent,
+  Tabs,
+  Tab,
+  TextareaAutosize
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
 
-const KnowledgeBaseManager = ({ knowledgeBases, setKnowledgeBases }) => {
+const StyledCard = styled(Card)(({ theme }) => ({
+  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+  borderRadius: '12px',
+  transition: 'box-shadow 0.3s ease',
+  '&:hover': {
+    boxShadow: '0 6px 16px rgba(0, 0, 0, 0.1)',
+  },
+}));
+
+const KnowledgeBaseManager = () => {
   const [kbName, setKbName] = useState('');
   const [kbDescription, setKbDescription] = useState('');
   const [kbType, setKbType] = useState('vector');
@@ -8,6 +42,34 @@ const KnowledgeBaseManager = ({ knowledgeBases, setKnowledgeBases }) => {
   const [documentContent, setDocumentContent] = useState('');
   const [documentTitle, setDocumentTitle] = useState('');
   const [query, setQuery] = useState('');
+  const [activeTab, setActiveTab] = useState(0);
+
+  const [knowledgeBases, setKnowledgeBases] = useState([
+    {
+      id: '1',
+      name: 'Company Documentation',
+      description: 'Internal company policies and procedures',
+      type: 'vector',
+      created_at: '2023-06-10',
+      documents: 42
+    },
+    {
+      id: '2',
+      name: 'Product Knowledge Base',
+      description: 'Product specifications and user guides',
+      type: 'vector',
+      created_at: '2023-07-15',
+      documents: 28
+    },
+    {
+      id: '3',
+      name: 'Research Papers',
+      description: 'Academic papers and research documents',
+      type: 'graph',
+      created_at: '2023-08-01',
+      documents: 15
+    }
+  ]);
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -22,7 +84,8 @@ const KnowledgeBaseManager = ({ knowledgeBases, setKnowledgeBases }) => {
       name: kbName,
       description: kbDescription,
       type: kbType,
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString().split('T')[0],
+      documents: 0
     };
     
     // Update local state
@@ -68,140 +131,205 @@ const KnowledgeBaseManager = ({ knowledgeBases, setKnowledgeBases }) => {
     setQuery('');
   };
 
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+  };
+
   return (
-    <div className="knowledge-base-manager">
-      <div className="card">
-        <h2>Create Knowledge Base</h2>
-        <form onSubmit={handleCreateKnowledgeBase}>
-          <div className="form-group">
-            <label htmlFor="kbName">Knowledge Base Name</label>
-            <input
-              type="text"
-              id="kbName"
-              value={kbName}
-              onChange={(e) => setKbName(e.target.value)}
-              required
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="kbDescription">Description</label>
-            <textarea
-              id="kbDescription"
-              value={kbDescription}
-              onChange={(e) => setKbDescription(e.target.value)}
-              rows="3"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="kbType">Type</label>
-            <select
-              id="kbType"
-              value={kbType}
-              onChange={(e) => setKbType(e.target.value)}
-            >
-              <option value="vector">Vector Database</option>
-              <option value="graph">Graph Database</option>
-              <option value="relational">Relational Database</option>
-            </select>
-          </div>
-          
-          <button type="submit" className="btn">Create Knowledge Base</button>
-        </form>
-      </div>
-      
-      <div className="card">
-        <h2>Add Document</h2>
-        <form onSubmit={handleAddDocument}>
-          <div className="form-group">
-            <label htmlFor="documentTitle">Document Title</label>
-            <input
-              type="text"
-              id="documentTitle"
-              value={documentTitle}
-              onChange={(e) => setDocumentTitle(e.target.value)}
-              placeholder="Optional title for the document"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="documentContent">Document Content</label>
-            <textarea
-              id="documentContent"
-              value={documentContent}
-              onChange={(e) => setDocumentContent(e.target.value)}
-              rows="6"
-              placeholder="Paste document content here or upload a file below"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="documentFile">Or Upload File</label>
-            <input
-              type="file"
-              id="documentFile"
-              onChange={handleFileChange}
-              accept=".txt,.pdf,.doc,.docx,.md"
-            />
-          </div>
-          
-          <button type="submit" className="btn">Add Document</button>
-        </form>
-      </div>
-      
-      <div className="card">
-        <h2>Query Knowledge Base</h2>
-        <form onSubmit={handleQuery}>
-          <div className="form-group">
-            <label htmlFor="query">Query</label>
-            <input
-              type="text"
-              id="query"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Enter your question or query"
-              required
-            />
-          </div>
-          
-          <button type="submit" className="btn">Query Knowledge Base</button>
-        </form>
-      </div>
-      
-      <div className="card">
-        <h2>Existing Knowledge Bases</h2>
-        {knowledgeBases.length === 0 ? (
-          <p>No knowledge bases created yet.</p>
-        ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Type</th>
-                <th>Created</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {knowledgeBases.map(kb => (
-                <tr key={kb.id}>
-                  <td>{kb.name}</td>
-                  <td>{kb.description}</td>
-                  <td>{kb.type}</td>
-                  <td>{new Date(kb.created_at).toLocaleDateString()}</td>
-                  <td>
-                    <button className="btn btn-secondary" style={{marginRight: '0.5rem'}}>View</button>
-                    <button className="btn btn-secondary">Delete</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <Box sx={{ flexGrow: 1 }}>
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Tabs value={activeTab} onChange={handleTabChange} sx={{ mb: 3 }}>
+          <Tab label="Create Knowledge Base" />
+          <Tab label="Add Document" />
+          <Tab label="Query Knowledge Base" />
+        </Tabs>
+
+        {activeTab === 0 && (
+          <Box>
+            <Typography variant="h5" gutterBottom>
+              Create Knowledge Base
+            </Typography>
+            <Box component="form" onSubmit={handleCreateKnowledgeBase} sx={{ mt: 2 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Knowledge Base Name"
+                    value={kbName}
+                    onChange={(e) => setKbName(e.target.value)}
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Description"
+                    multiline
+                    rows={3}
+                    value={kbDescription}
+                    onChange={(e) => setKbDescription(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <FormControl fullWidth>
+                    <InputLabel>Type</InputLabel>
+                    <Select
+                      value={kbType}
+                      label="Type"
+                      onChange={(e) => setKbType(e.target.value)}
+                    >
+                      <MenuItem value="vector">Vector Database</MenuItem>
+                      <MenuItem value="graph">Graph Database</MenuItem>
+                      <MenuItem value="relational">Relational Database</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                  <Button variant="contained" type="submit" size="large">
+                    Create Knowledge Base
+                  </Button>
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
         )}
-      </div>
-    </div>
+
+        {activeTab === 1 && (
+          <Box>
+            <Typography variant="h5" gutterBottom>
+              Add Document
+            </Typography>
+            <Box component="form" onSubmit={handleAddDocument} sx={{ mt: 2 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Document Title"
+                    value={documentTitle}
+                    onChange={(e) => setDocumentTitle(e.target.value)}
+                    placeholder="Optional title for the document"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Document Content"
+                    multiline
+                    rows={6}
+                    value={documentContent}
+                    onChange={(e) => setDocumentContent(e.target.value)}
+                    placeholder="Paste document content here or upload a file below"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Button
+                    variant="contained"
+                    component="label"
+                    fullWidth
+                  >
+                    Upload File
+                    <input
+                      type="file"
+                      hidden
+                      onChange={handleFileChange}
+                      accept=".txt,.pdf,.doc,.docx,.md"
+                    />
+                  </Button>
+                  {selectedFile && (
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      Selected file: {selectedFile.name}
+                    </Typography>
+                  )}
+                </Grid>
+                <Grid item xs={12}>
+                  <Button variant="contained" type="submit" size="large">
+                    Add Document
+                  </Button>
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
+        )}
+
+        {activeTab === 2 && (
+          <Box>
+            <Typography variant="h5" gutterBottom>
+              Query Knowledge Base
+            </Typography>
+            <Box component="form" onSubmit={handleQuery} sx={{ mt: 2 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Query"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Enter your question or query"
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Button variant="contained" type="submit" size="large">
+                    Query Knowledge Base
+                  </Button>
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
+        )}
+      </Paper>
+
+      <Paper sx={{ p: 3 }}>
+        <Typography variant="h5" gutterBottom>
+          Existing Knowledge Bases
+        </Typography>
+        {knowledgeBases.length === 0 ? (
+          <Typography variant="body1" color="textSecondary">
+            No knowledge bases created yet.
+          </Typography>
+        ) : (
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Description</TableCell>
+                  <TableCell>Type</TableCell>
+                  <TableCell>Documents</TableCell>
+                  <TableCell>Created</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {knowledgeBases.map(kb => (
+                  <TableRow key={kb.id}>
+                    <TableCell component="th" scope="row">
+                      {kb.name}
+                    </TableCell>
+                    <TableCell>{kb.description}</TableCell>
+                    <TableCell>
+                      <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
+                        {kb.type}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>{kb.documents}</TableCell>
+                    <TableCell>{kb.created_at}</TableCell>
+                    <TableCell>
+                      <Button variant="outlined" size="small" sx={{ mr: 1 }}>
+                        View
+                      </Button>
+                      <Button variant="outlined" size="small" color="error">
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </Paper>
+    </Box>
   );
 };
 
