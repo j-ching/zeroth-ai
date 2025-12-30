@@ -1,0 +1,44 @@
+```
+# Environment
+.env
+
+# Dependencies
+backend/venv/
+backend/.venv/
+backend/__pycache__/
+frontend/node_modules/
+
+# Build artifacts
+backend/dist/
+backend/build/
+frontend/dist/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+.venv/
+venv/
+ENV/
+
+# Logs
+*.log
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+
+# Coverage
+.coverage
+htmlcov/
+coverage/
+
+# MyPy
+.mypy_cache/
+```
