@@ -1,4 +1,32 @@
 import React, { useState } from 'react';
+import {
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Grid,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Alert,
+  LinearProgress,
+  Card,
+  CardContent,
+  Chip,
+  Divider
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+
+const StyledCard = styled(Card)(({ theme }) => ({
+  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+  borderRadius: '12px',
+  transition: 'box-shadow 0.3s ease',
+  '&:hover': {
+    boxShadow: '0 6px 16px rgba(0, 0, 0, 0.1)',
+  },
+}));
 
 const AgentPreview = () => {
   const [selectedAgent, setSelectedAgent] = useState('');
@@ -8,9 +36,11 @@ const AgentPreview = () => {
 
   // Mock agents data
   const mockAgents = [
-    { id: '1', name: 'Customer Support Agent', description: 'Helps with customer inquiries' },
-    { id: '2', name: 'Content Generator', description: 'Creates marketing content' },
-    { id: '3', name: 'Data Analyst', description: 'Analyzes data and generates reports' }
+    { id: '1', name: 'Customer Support Agent', description: 'Helps with customer inquiries', type: 'Support' },
+    { id: '2', name: 'Content Generator', description: 'Creates marketing content', type: 'Creative' },
+    { id: '3', name: 'Data Analyst', description: 'Analyzes data and generates reports', type: 'Analytics' },
+    { id: '4', name: 'Technical Support', description: 'Handles technical issues', type: 'Support' },
+    { id: '5', name: 'Research Assistant', description: 'Assists with research tasks', type: 'Research' }
   ];
 
   const handlePreview = async (e) => {
@@ -58,71 +88,140 @@ const AgentPreview = () => {
   };
 
   return (
-    <div className="agent-preview">
-      <div className="card">
-        <h2>Agent Preview</h2>
-        <form onSubmit={handlePreview}>
-          <div className="form-group">
-            <label htmlFor="agentSelect">Select Agent</label>
-            <select
-              id="agentSelect"
-              value={selectedAgent}
-              onChange={(e) => setSelectedAgent(e.target.value)}
-              required
-            >
-              <option value="">-- Select an Agent --</option>
-              {mockAgents.map(agent => (
-                <option key={agent.id} value={agent.id}>
-                  {agent.name} - {agent.description}
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="inputText">Input Text</label>
-            <textarea
-              id="inputText"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              rows="4"
-              placeholder="Enter text for the agent to process..."
-              required
-            />
-          </div>
-          
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-            <button type="submit" className="btn" disabled={isLoading}>
-              {isLoading ? 'Previewing...' : 'Preview Agent'}
-            </button>
-            <button type="button" className="btn" onClick={handleRun} disabled={isLoading}>
-              {isLoading ? 'Running...' : 'Run Agent'}
-            </button>
-          </div>
-        </form>
-      </div>
-      
-      {previewOutput && (
-        <div className="card">
-          <h2>Agent Output</h2>
-          <div className="agent-preview-output">
-            {previewOutput}
-          </div>
-        </div>
-      )}
-      
-      <div className="card">
-        <h2>About Agent Preview</h2>
-        <p>
-          The Agent Preview feature allows you to test and validate your agents before deployment. 
-          You can provide input text and see how the agent would respond without permanently executing the agent.
-        </p>
-        <p>
-          The "Preview Agent" button simulates how the agent would respond, while the "Run Agent" button 
-          executes the agent with your input and returns the actual result.
-        </p>
-      </div>
-    </div>
+    <Box sx={{ flexGrow: 1 }}>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={8}>
+          <Paper sx={{ p: 3, mb: 3 }}>
+            <Typography variant="h5" gutterBottom>
+              Agent Preview
+            </Typography>
+            <Box component="form" onSubmit={handlePreview} sx={{ mt: 2 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <FormControl fullWidth>
+                    <InputLabel>Select Agent</InputLabel>
+                    <Select
+                      value={selectedAgent}
+                      label="Select Agent"
+                      onChange={(e) => setSelectedAgent(e.target.value)}
+                      required
+                    >
+                      <MenuItem value="">
+                        <em>Select an Agent</em>
+                      </MenuItem>
+                      {mockAgents.map(agent => (
+                        <MenuItem key={agent.id} value={agent.id}>
+                          {agent.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Input Text"
+                    multiline
+                    rows={5}
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    placeholder="Enter text for the agent to process..."
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Button 
+                    variant="contained" 
+                    type="submit" 
+                    size="large" 
+                    disabled={isLoading}
+                    sx={{ mr: 2 }}
+                  >
+                    {isLoading ? 'Previewing...' : 'Preview Agent'}
+                  </Button>
+                  <Button 
+                    variant="outlined" 
+                    onClick={handleRun} 
+                    size="large" 
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Running...' : 'Run Agent'}
+                  </Button>
+                </Grid>
+                {isLoading && (
+                  <Grid item xs={12}>
+                    <LinearProgress />
+                  </Grid>
+                )}
+              </Grid>
+            </Box>
+          </Paper>
+
+          {previewOutput && (
+            <Paper sx={{ p: 3 }}>
+              <Typography variant="h5" gutterBottom>
+                Agent Output
+              </Typography>
+              <Box 
+                sx={{ 
+                  p: 2, 
+                  bgcolor: 'grey.50', 
+                  borderRadius: 2, 
+                  fontFamily: 'monospace',
+                  whiteSpace: 'pre-line'
+                }}
+              >
+                {previewOutput}
+              </Box>
+            </Paper>
+          )}
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Paper sx={{ p: 3, mb: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              Available Agents
+            </Typography>
+            {mockAgents.map(agent => (
+              <Box key={agent.id} sx={{ mb: 2 }}>
+                <Typography variant="body1" fontWeight="bold">
+                  {agent.name}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+                  {agent.description}
+                </Typography>
+                <Chip 
+                  label={agent.type} 
+                  size="small" 
+                  sx={{ 
+                    textTransform: 'uppercase',
+                    fontSize: '0.7rem',
+                    fontWeight: 'bold'
+                  }}
+                />
+              </Box>
+            ))}
+          </Paper>
+
+          <Paper sx={{ p: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              About Agent Preview
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Typography variant="body2" paragraph>
+              The Agent Preview feature allows you to test and validate your agents before deployment. 
+              You can provide input text and see how the agent would respond without permanently executing the agent.
+            </Typography>
+            <Typography variant="body2" paragraph>
+              The "Preview Agent" button simulates how the agent would respond, while the "Run Agent" button 
+              executes the agent with your input and returns the actual result.
+            </Typography>
+            <Alert severity="info" sx={{ mt: 2 }}>
+              Remember to configure your agent properly before running it in production.
+            </Alert>
+          </Paper>
+        </Grid>
+      </Grid>
+    </Box>
   );
 };
 

@@ -1,6 +1,29 @@
 import React, { useState } from 'react';
+import {
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Grid,
+  Card,
+  CardContent,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Slider,
+  TextareaAutosize,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Alert
+} from '@mui/material';
 
-const AgentBuilder = ({ agents, setAgents }) => {
+const AgentBuilder = () => {
   const [agentName, setAgentName] = useState('');
   const [agentDescription, setAgentDescription] = useState('');
   const [agentConfig, setAgentConfig] = useState({
@@ -11,6 +34,23 @@ const AgentBuilder = ({ agents, setAgents }) => {
     tools: []
   });
 
+  const [agents, setAgents] = useState([
+    {
+      id: '1',
+      name: 'Customer Support Agent',
+      description: 'Handles customer inquiries and support tickets',
+      config: { model: 'gpt-4', temperature: 0.5 },
+      created_at: '2023-06-15'
+    },
+    {
+      id: '2',
+      name: 'Data Analysis Agent',
+      description: 'Analyzes data and generates reports',
+      config: { model: 'gpt-3.5-turbo', temperature: 0.3 },
+      created_at: '2023-07-20'
+    }
+  ]);
+
   const handleCreateAgent = async (e) => {
     e.preventDefault();
     
@@ -20,7 +60,7 @@ const AgentBuilder = ({ agents, setAgents }) => {
       name: agentName,
       description: agentDescription,
       config: agentConfig,
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString().split('T')[0]
     };
     
     // Update local state
@@ -48,105 +88,160 @@ const AgentBuilder = ({ agents, setAgents }) => {
   };
 
   return (
-    <div className="agent-builder">
-      <div className="card">
-        <h2>Create New Agent</h2>
-        <form onSubmit={handleCreateAgent}>
-          <div className="form-group">
-            <label htmlFor="agentName">Agent Name</label>
-            <input
-              type="text"
-              id="agentName"
-              value={agentName}
-              onChange={(e) => setAgentName(e.target.value)}
-              required
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="agentDescription">Description</label>
-            <textarea
-              id="agentDescription"
-              value={agentDescription}
-              onChange={(e) => setAgentDescription(e.target.value)}
-              rows="3"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="model">Model</label>
-            <select
-              id="model"
-              value={agentConfig.model}
-              onChange={(e) => handleConfigChange('model', e.target.value)}
-            >
-              <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-              <option value="gpt-4">GPT-4</option>
-              <option value="llama-2">Llama 2</option>
-              <option value="mistral">Mistral</option>
-            </select>
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="temperature">Temperature: {agentConfig.temperature}</label>
-            <input
-              type="range"
-              id="temperature"
-              min="0"
-              max="1"
-              step="0.1"
-              value={agentConfig.temperature}
-              onChange={(e) => handleConfigChange('temperature', parseFloat(e.target.value))}
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="systemPrompt">System Prompt</label>
-            <textarea
-              id="systemPrompt"
-              value={agentConfig.system_prompt}
-              onChange={(e) => handleConfigChange('system_prompt', e.target.value)}
-              rows="4"
-            />
-          </div>
-          
-          <button type="submit" className="btn">Create Agent</button>
-        </form>
-      </div>
+    <Box sx={{ flexGrow: 1 }}>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={8}>
+          <Paper sx={{ p: 3, mb: 3 }}>
+            <Typography variant="h5" gutterBottom>
+              Create New Agent
+            </Typography>
+            <Box component="form" onSubmit={handleCreateAgent} sx={{ mt: 2 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Agent Name"
+                    value={agentName}
+                    onChange={(e) => setAgentName(e.target.value)}
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Description"
+                    multiline
+                    rows={3}
+                    value={agentDescription}
+                    onChange={(e) => setAgentDescription(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <FormControl fullWidth>
+                    <InputLabel>Model</InputLabel>
+                    <Select
+                      value={agentConfig.model}
+                      label="Model"
+                      onChange={(e) => handleConfigChange('model', e.target.value)}
+                    >
+                      <MenuItem value="gpt-3.5-turbo">GPT-3.5 Turbo</MenuItem>
+                      <MenuItem value="gpt-4">GPT-4</MenuItem>
+                      <MenuItem value="llama-2">Llama 2</MenuItem>
+                      <MenuItem value="mistral">Mistral</MenuItem>
+                      <MenuItem value="claude-3">Claude 3</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <FormControl fullWidth>
+                    <InputLabel>Max Tokens</InputLabel>
+                    <Select
+                      value={agentConfig.max_tokens}
+                      label="Max Tokens"
+                      onChange={(e) => handleConfigChange('max_tokens', parseInt(e.target.value))}
+                    >
+                      <MenuItem value={256}>256</MenuItem>
+                      <MenuItem value={512}>512</MenuItem>
+                      <MenuItem value={1024}>1024</MenuItem>
+                      <MenuItem value={2048}>2048</MenuItem>
+                      <MenuItem value={4096}>4096</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography gutterBottom>
+                    Temperature: {agentConfig.temperature}
+                  </Typography>
+                  <Slider
+                    value={agentConfig.temperature}
+                    onChange={(e, newValue) => handleConfigChange('temperature', newValue)}
+                    step={0.1}
+                    min={0}
+                    max={1}
+                    valueLabelDisplay="auto"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="System Prompt"
+                    multiline
+                    rows={4}
+                    value={agentConfig.system_prompt}
+                    onChange={(e) => handleConfigChange('system_prompt', e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Button variant="contained" type="submit" size="large">
+                    Create Agent
+                  </Button>
+                </Grid>
+              </Grid>
+            </Box>
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Paper sx={{ p: 3, mb: 3 }}>
+            <Typography variant="h5" gutterBottom>
+              Agent Configuration
+            </Typography>
+            <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+              Configure your agent's behavior, model selection, and other parameters.
+            </Typography>
+            <Box sx={{ mt: 2 }}>
+              <Alert severity="info">
+                Your agent will use the selected model and parameters when processing requests.
+              </Alert>
+            </Box>
+          </Paper>
+        </Grid>
+      </Grid>
       
-      <div className="card">
-        <h2>Existing Agents</h2>
+      <Paper sx={{ p: 3 }}>
+        <Typography variant="h5" gutterBottom>
+          Existing Agents
+        </Typography>
         {agents.length === 0 ? (
-          <p>No agents created yet.</p>
+          <Typography variant="body1" color="textSecondary">
+            No agents created yet.
+          </Typography>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Model</th>
-                <th>Created</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {agents.map(agent => (
-                <tr key={agent.id}>
-                  <td>{agent.name}</td>
-                  <td>{agent.description}</td>
-                  <td>{agent.config.model}</td>
-                  <td>{new Date(agent.created_at).toLocaleDateString()}</td>
-                  <td>
-                    <button className="btn btn-secondary" style={{marginRight: '0.5rem'}}>Edit</button>
-                    <button className="btn btn-secondary">Delete</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Description</TableCell>
+                  <TableCell>Model</TableCell>
+                  <TableCell>Created</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {agents.map(agent => (
+                  <TableRow key={agent.id}>
+                    <TableCell component="th" scope="row">
+                      {agent.name}
+                    </TableCell>
+                    <TableCell>{agent.description}</TableCell>
+                    <TableCell>{agent.config.model}</TableCell>
+                    <TableCell>{agent.created_at}</TableCell>
+                    <TableCell>
+                      <Button variant="outlined" size="small" sx={{ mr: 1 }}>
+                        Edit
+                      </Button>
+                      <Button variant="outlined" size="small" color="error">
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
-      </div>
-    </div>
+      </Paper>
+    </Box>
   );
 };
 
